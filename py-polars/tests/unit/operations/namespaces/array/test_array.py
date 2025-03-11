@@ -256,6 +256,32 @@ def test_array_get_null_on_oob() -> None:
     )
     assert_series_equal(out, expected)
 
+def test_array_gather() -> None:
+    s = pl.Series(
+        "a", [[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=pl.Array(pl.Int32, 3)
+    )
+
+    # Test with list of indices
+    result = s.arr.gather([0, 2], null_on_oob=True)
+    expected = pl.Series(
+        "a", [[1, 3], [4, 6], [7, 9]], dtype=pl.Array(pl.Int32, 2)
+    )
+    assert_series_equal(result, expected)
+
+    # Test with out of bounds indices
+    result = s.arr.gather([0, 5], null_on_oob=True)
+    expected = pl.Series(
+        "a", [[1, None], [4, None], [7, None]], dtype=pl.Array(pl.Int32, 2)
+    )
+    assert_series_equal(result, expected)
+
+    # Test with Series
+    result = s.arr.gather(pl.Series([1, -1]), null_on_oob=True)
+    expected = pl.Series(
+        "a", [[2, 3], [5, 6], [8, 9]], dtype=pl.Array(pl.Int32, 2)
+    )
+    assert_series_equal(result, expected)
+
 
 def test_arr_first_last() -> None:
     s = pl.Series(

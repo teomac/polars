@@ -498,6 +498,47 @@ class ExprArrayNameSpace:
         """
         index = parse_into_expression(index)
         return wrap_expr(self._pyexpr.arr_get(index, null_on_oob))
+       
+    def gather(self, index: int | IntoExprColumn, *, null_on_oob: bool = False) -> Expr:
+        """
+        Take values by multiple indices from an array.
+
+        Parameters
+        ----------
+        index
+            The indices that will be used for gathering.
+        null_on_oob
+            Behavior if an index is out of bounds:
+            True -> set as null
+            False -> raise an error
+
+        Returns
+        -------
+        Expr
+            Expression with the data type of the array.
+
+        Examples
+        --------
+        >>> df = pl.DataFrame(
+        ...     {"arr": [[1, 2, 3], [4, 5, 6], [7, 8, 9]]},
+        ...     schema={"arr": pl.Array(pl.Int32, 3)},
+        ... )
+        >>> df.with_columns(
+        ...     gather=pl.col("arr").arr.gather(pl.Series([1, -2, 0]), null_on_oob=True)
+        ... )
+        shape: (3, 2)
+        ┌───────────────┬───────────────┐
+        │ arr           ┆ gather        │
+        │ ---           ┆ ---           │
+        │ array[i32, 3] ┆ array[i32, 3] │
+        ╞═══════════════╪═══════════════╡
+        │ [1, 2, 3]     ┆ [2, 2, 1]     │
+        │ [4, 5, 6]     ┆ [5, 5, 4]     │
+        │ [7, 8, 9]     ┆ [8, 8, 7]     │
+        └───────────────┴───────────────┘
+        """
+        index = parse_into_expression(index)
+        return wrap_expr(self._pyexpr.arr_gather(index, null_on_oob))
 
     def first(self) -> Expr:
         """

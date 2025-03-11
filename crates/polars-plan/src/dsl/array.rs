@@ -118,6 +118,16 @@ impl ArrayNameSpace {
         )
     }
 
+    #[cfg(feature = "dtype-array")]
+    pub fn gather(&self, index: Expr, null_on_oob: bool) -> Expr {
+        self.0.clone().map_many_private(
+            FunctionExpr::ArrayExpr(ArrayFunction::Gather(null_on_oob)),
+            &[index],
+            false,
+            None,
+        )
+    }
+
     /// Join all string items in a sub-array and place a separator between them.
     /// # Error
     /// Raise if inner type of array is not `DataType::String`.

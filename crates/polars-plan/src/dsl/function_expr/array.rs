@@ -25,6 +25,8 @@ pub enum ArrayFunction {
     ArgMin,
     ArgMax,
     Get(bool),
+    #[cfg(feature = "dtype-array")]
+    Gather(bool),
     Join(bool),
     #[cfg(feature = "is_in")]
     Contains,
@@ -63,6 +65,8 @@ impl ArrayFunction {
             Reverse => mapper.with_same_dtype(),
             ArgMin | ArgMax => mapper.with_dtype(IDX_DTYPE),
             Get(_) => mapper.map_to_list_and_array_inner_dtype(),
+            #[cfg(feature = "dtype-array")]
+            Gather(_) => mapper.with_same_dtype(),
             Join(_) => mapper.with_dtype(DataType::String),
             #[cfg(feature = "is_in")]
             Contains => mapper.with_dtype(DataType::Boolean),
@@ -106,6 +110,8 @@ impl Display for ArrayFunction {
             ArgMin => "arg_min",
             ArgMax => "arg_max",
             Get(_) => "get",
+            #[cfg(feature = "dtype-array")]
+            Gather(_) => "gather",
             Join(_) => "join",
             #[cfg(feature = "is_in")]
             Contains => "contains",
@@ -142,6 +148,8 @@ impl From<ArrayFunction> for SpecialEq<Arc<dyn ColumnsUdf>> {
             ArgMin => map!(arg_min),
             ArgMax => map!(arg_max),
             Get(null_on_oob) => map_as_slice!(get, null_on_oob),
+            #[cfg(feature = "dtype-array")]
+            Gather(null_on_oob) => map_as_slice!(gather, null_on_oob),
             Join(ignore_nulls) => map_as_slice!(join, ignore_nulls),
             #[cfg(feature = "is_in")]
             Contains => map_as_slice!(contains),
@@ -249,6 +257,15 @@ pub(super) fn get(s: &[Column], null_on_oob: bool) -> PolarsResult<Column> {
     let index = s[1].cast(&DataType::Int64)?;
     let index = index.i64().unwrap();
     ca.array_get(index, null_on_oob).map(Column::from)
+}
+
+pub(super) fn gather(args: &[Column], null_on_oob: bool) -> PolarsResult<Column> {
+    let ca = &args[0];
+    let idx = &args[1];
+    let ca = ca.array()?;
+
+    ca.array_gather(idx.as_materialized_series(), null_on_oob)
+        .map(Column::from)
 }
 
 pub(super) fn join(s: &[Column], ignore_nulls: bool) -> PolarsResult<Column> {
