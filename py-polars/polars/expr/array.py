@@ -498,8 +498,10 @@ class ExprArrayNameSpace:
         """
         index = parse_into_expression(index)
         return wrap_expr(self._pyexpr.arr_get(index, null_on_oob))
-       
-    def gather(self, index: int | IntoExprColumn, *, null_on_oob: bool = False) -> Expr:
+
+    def gather(
+        self, indices: int | IntoExprColumn, *, null_on_oob: bool = False
+    ) -> Expr:
         """
         Take values by multiple indices from an array.
 
@@ -537,8 +539,8 @@ class ExprArrayNameSpace:
         │ [7, 8, 9]     ┆ [8, 8, 7]     │
         └───────────────┴───────────────┘
         """
-        index = parse_into_expression(index)
-        return wrap_expr(self._pyexpr.arr_gather(index, null_on_oob))
+        indices = parse_into_expression(indices)
+        return wrap_expr(self._pyexpr.arr_gather(indices, null_on_oob))
 
     def first(self) -> Expr:
         """

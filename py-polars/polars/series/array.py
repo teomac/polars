@@ -402,7 +402,7 @@ class ArrayNameSpace:
         self,
         indices: Series | list[int] | list[list[int]],
         *,
-        null_on_oob: bool = False
+        null_on_oob: bool = False,
     ) -> Series:
         """
         Take sublists by multiple indices.
@@ -422,9 +422,7 @@ class ArrayNameSpace:
 
         Examples
         --------
-        >>> s = pl.Series(
-        ...     "a", [[3, 2, 1], [], [5, 6, 7]], dtype=pl.Array(pl.Int64, 3)
-        ... )
+        >>> s = pl.Series("a", [[3, 2, 1], [], [5, 6, 7]], dtype=pl.Array(pl.Int64, 3))
         >>> s.arr.gather([0, 2], null_on_oob=True)
         shape: (3,)
         Series: 'a' [array[i64, 2]]
