@@ -395,6 +395,7 @@ class ExprDateTimeNameSpace:
         second: int | IntoExpr | None = None,
         microsecond: int | IntoExpr | None = None,
         ambiguous: Ambiguous | Expr = "raise",
+        strict: bool = True,
     ) -> Expr:
         """
         Replace time unit.
@@ -422,6 +423,8 @@ class ExprDateTimeNameSpace:
             - `'earliest'`: use the earliest datetime
             - `'latest'`: use the latest datetime
             - `'null'`: set to null
+        strict : bool
+            Raise error on invalid dates if True, otherwise return null
 
         Returns
         -------
@@ -475,6 +478,7 @@ class ExprDateTimeNameSpace:
                 second,
                 microsecond,
                 ambiguous_expr,
+                strict,
             )
         )
 
@@ -1275,7 +1279,7 @@ class ExprDateTimeNameSpace:
         return wrap_expr(self._pyexpr.dt_date())
 
     @deprecate_function("Use `dt.replace_time_zone(None)` instead.", version="0.20.4")
-    def datetime(self) -> Expr:
+    def datetime(self, *, strict: bool = True) -> Expr:
         """
         Return datetime.
 
@@ -1283,6 +1287,12 @@ class ExprDateTimeNameSpace:
             Use `dt.replace_time_zone(None)` instead.
 
         Applies to Datetime columns.
+
+        Parameters
+        ----------
+        strict : bool, default=True
+            Raise an error when dates are invalid.
+            If False, invalid dates will return None.
 
         Returns
         -------
@@ -1316,7 +1326,7 @@ class ExprDateTimeNameSpace:
         │ 2065-01-01 10:20:30.060 UTC ┆ 2065-01-01 10:20:30.060 │
         └─────────────────────────────┴─────────────────────────┘
         """
-        return wrap_expr(self._pyexpr.dt_datetime())
+        return wrap_expr(self._pyexpr.dt_datetime(strict))
 
     def hour(self) -> Expr:
         """

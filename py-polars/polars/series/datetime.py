@@ -777,7 +777,7 @@ class DateTimeNameSpace:
         """
 
     @deprecate_function("Use `dt.replace_time_zone(None)` instead.", version="0.20.4")
-    def datetime(self) -> Series:
+    def datetime(self, *, strict: bool = True) -> Series:
         """
         Extract (local) datetime.
 
@@ -785,6 +785,12 @@ class DateTimeNameSpace:
             Use `dt.replace_time_zone(None)` instead.
 
         Applies to Datetime columns.
+
+        Parameters
+        ----------
+        strict : bool, default=True
+            Raise an error when dates are invalid.
+            If False, invalid dates will return None.
 
         Returns
         -------
@@ -810,6 +816,7 @@ class DateTimeNameSpace:
                 2021-01-02 05:00:00
         ]
         """
+        return wrap_s(self._s.datetime(strict))
 
     def hour(self) -> Series:
         """
