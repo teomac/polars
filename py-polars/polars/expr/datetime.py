@@ -468,6 +468,7 @@ class ExprDateTimeNameSpace:
             )
         )
         ambiguous_expr = parse_into_expression(ambiguous, str_as_lit=True)
+        strict_expr = parse_into_expression(strict)
         return wrap_expr(
             self._pyexpr.dt_replace(
                 year,
@@ -478,7 +479,7 @@ class ExprDateTimeNameSpace:
                 second,
                 microsecond,
                 ambiguous_expr,
-                strict,
+                strict_expr,
             )
         )
 

@@ -344,7 +344,9 @@ impl DateLikeNameSpace {
         second: Expr,
         microsecond: Expr,
         ambiguous: Expr,
+        strict: Expr,
     ) -> Expr {
+
         self.0.map_many_private(
             FunctionExpr::TemporalExpr(TemporalFunction::Replace),
             &[
@@ -356,6 +358,7 @@ impl DateLikeNameSpace {
                 second,
                 microsecond,
                 ambiguous,
+                strict,
             ],
             false,
             None,

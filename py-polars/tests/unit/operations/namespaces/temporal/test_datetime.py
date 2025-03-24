@@ -1482,21 +1482,23 @@ def test_new_from_parts_strict() -> None:
     
     # Test valid dates - should work with both strict=True and strict=False
     assert s.dt.replace(year=2024, month=2, day=29).to_list() == [
-        datetime(2024, 2, 29)
+       datetime(2024, 2, 29)
     ]
 
     # Test invalid dates
     # With strict=True (default) - should raise error
     with pytest.raises(ComputeError, match="Invalid date components"):
-        s.dt.replace(year=2024, month=2, day=30)
+       s.dt.replace(year=2024, month=2, day=30)
+
 
     # Test with multiple rows
     s = pl.Series([datetime(2024, 1, 1), datetime(2024, 1, 2)])
     result = s.dt.replace(
-        month=pl.Series([2, 2]), 
-        day=pl.Series([29, 30])
+        month=pl.Series([2, 2]),
+        day=pl.Series([29, 30]),
+        strict=False
     )
     assert result.to_list() == [datetime(2024, 2, 29), None]
-    
+
     # All components null - should return all nulls
     assert s.dt.replace(year=None, month=None, day=None).to_list() == [None, None]

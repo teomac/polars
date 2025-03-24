@@ -816,7 +816,7 @@ class DateTimeNameSpace:
                 2021-01-02 05:00:00
         ]
         """
-        return wrap_s(self._s.datetime(strict))
+        return self.replace_time_zone(None)
 
     def hour(self) -> Series:
         """
@@ -2109,6 +2109,7 @@ class DateTimeNameSpace:
         second: int | Series | None = None,
         microsecond: int | Series | None = None,
         ambiguous: Ambiguous | Series = "raise",
+        strict: bool = True,
     ) -> Series:
         """
         Replace time unit.
