@@ -82,6 +82,7 @@ pub trait DateMethods: AsDate {
         month: &Int8Chunked,
         day: &Int8Chunked,
         name: PlSmallStr,
+        strict: bool,
     ) -> PolarsResult<DateChunked> {
         let ca: Int32Chunked = year
             .into_iter()
@@ -91,7 +92,13 @@ pub trait DateMethods: AsDate {
                 if let (Some(y), Some(m), Some(d)) = (y, m, d) {
                     NaiveDate::from_ymd_opt(y, m as u32, d as u32).map_or_else(
                         // We have an invalid date.
-                        || Err(polars_err!(ComputeError: format!("Invalid date components ({}, {}, {}) supplied", y, m, d))),
+                        || {
+                            if strict {
+                                Err(polars_err!(ComputeError: format!("Invalid date components ({}, {}, {}) supplied", y, m, d)))
+                            } else {
+                                Ok(None)
+                            }
+                        },
                         // We have a valid date.
                         |date| Ok(Some(date.num_days_from_ce() - EPOCH_DAYS_FROM_CE)),
                     )

@@ -131,7 +131,6 @@ impl TemporalFunction {
             } => Ok(Field::new(
                 PlSmallStr::from_static("datetime"),
                 DataType::Datetime(*time_unit, time_zone.clone()),
-
             )),
             Combine(tu) => mapper.try_map_dtype(|dt| match dt {
                 DataType::Datetime(_, tz) => Ok(DataType::Datetime(*tu, tz.clone())),
@@ -571,6 +570,10 @@ pub(super) fn replace(s: &[Column]) -> PolarsResult<Column> {
     let year = s_year.i32()?;
     let month = s_month.i8()?;
     let day = s_day.i8()?;
+    let strict = match s.get(8) {
+        Some(col) => col.bool()?.get(0).unwrap_or(true),
+        None => true,
+    };
 
     match time_series.dtype() {
         DataType::Datetime(_, _) => {
@@ -595,12 +598,12 @@ pub(super) fn replace(s: &[Column]) -> PolarsResult<Column> {
                 second,
                 nanosecond,
                 ambiguous,
-                true,
+                strict,
             );
             out.map(|s| s.into_column())
         },
         DataType::Date => {
-            let out = replace_date(time_series.date().unwrap(), year, month, day);
+            let out = replace_date(time_series.date().unwrap(), year, month, day, strict);
             out.map(|s| s.into_column())
         },
         dt => polars_bail!(opq = round, got = dt, expected = "date/datetime"),
