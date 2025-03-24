@@ -41,6 +41,7 @@ pub struct DatetimeArgs {
     pub time_unit: TimeUnit,
     pub time_zone: Option<TimeZone>,
     pub ambiguous: Expr,
+    pub strict: bool,
 }
 
 impl Default for DatetimeArgs {
@@ -56,6 +57,7 @@ impl Default for DatetimeArgs {
             time_unit: TimeUnit::Microseconds,
             time_zone: None,
             ambiguous: lit(String::from("raise")),
+            strict: true,
         }
     }
 }
@@ -181,6 +183,10 @@ impl DatetimeArgs {
             .alias(PlSmallStr::from_static("datetime")),
         )
     }
+
+    pub fn with_strict(self, strict: bool) -> Self {
+        Self { strict, ..self }
+    }
 }
 
 /// Construct a column of `Datetime` from the provided [`DatetimeArgs`].
@@ -199,6 +205,7 @@ pub fn datetime(args: DatetimeArgs) -> Expr {
     let time_unit = args.time_unit;
     let time_zone = args.time_zone;
     let ambiguous = args.ambiguous;
+    let strict = args.strict;
 
     let input = vec![
         year,
@@ -217,6 +224,7 @@ pub fn datetime(args: DatetimeArgs) -> Expr {
             function: FunctionExpr::TemporalExpr(TemporalFunction::DatetimeFunction {
                 time_unit,
                 time_zone,
+                strict,
             }),
             options: FunctionOptions {
                 collect_groups: ApplyOptions::ElementWise,

@@ -67,8 +67,9 @@ impl From<TemporalFunction> for SpecialEq<Arc<dyn ColumnsUdf>> {
             DatetimeFunction {
                 time_unit,
                 time_zone,
+                strict,
             } => {
-                map_as_slice!(temporal::datetime, &time_unit, time_zone.as_deref())
+                map_as_slice!(temporal::datetime, &time_unit, time_zone.as_deref(), strict)
             },
         }
     }
@@ -79,6 +80,7 @@ pub(super) fn datetime(
     s: &[Column],
     time_unit: &TimeUnit,
     time_zone: Option<&str>,
+    strict: bool,
 ) -> PolarsResult<Column> {
     let col_name = PlSmallStr::from_static("datetime");
 
@@ -166,7 +168,7 @@ pub(super) fn datetime(
 
     let ca = DatetimeChunked::new_from_parts(
         year, month, day, hour, minute, second, nanosecond, ambiguous, time_unit, time_zone,
-        col_name,
+        col_name, strict,
     );
     ca.map(|s| s.into_column())
 }

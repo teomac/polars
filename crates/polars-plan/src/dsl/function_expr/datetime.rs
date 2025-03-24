@@ -71,6 +71,7 @@ pub enum TemporalFunction {
     DatetimeFunction {
         time_unit: TimeUnit,
         time_zone: Option<TimeZone>,
+        strict: bool,
     },
 }
 
@@ -126,9 +127,11 @@ impl TemporalFunction {
             DatetimeFunction {
                 time_unit,
                 time_zone,
+                strict: _,
             } => Ok(Field::new(
                 PlSmallStr::from_static("datetime"),
                 DataType::Datetime(*time_unit, time_zone.clone()),
+
             )),
             Combine(tu) => mapper.try_map_dtype(|dt| match dt {
                 DataType::Datetime(_, tz) => Ok(DataType::Datetime(*tu, tz.clone())),
@@ -592,6 +595,7 @@ pub(super) fn replace(s: &[Column]) -> PolarsResult<Column> {
                 second,
                 nanosecond,
                 ambiguous,
+                true,
             );
             out.map(|s| s.into_column())
         },

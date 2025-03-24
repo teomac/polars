@@ -981,10 +981,12 @@ pub(crate) fn into_py(py: Python<'_>, expr: &AExpr) -> PyResult<PyObject> {
                     TemporalFunction::DatetimeFunction {
                         time_unit,
                         time_zone,
+                        strict,
                     } => (
                         PyTemporalFunction::DatetimeFunction,
                         Wrap(*time_unit),
                         time_zone.as_ref().map(|s| s.as_str()),
+                        strict,
                     )
                         .into_py_any(py),
                 },
